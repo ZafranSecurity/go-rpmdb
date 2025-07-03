@@ -42,6 +42,8 @@ type PackageInfo struct {
 
 	Provides []string
 	Requires []string
+
+	BdbFirstOverflowPgNo uint32
 }
 
 type FileInfo struct {

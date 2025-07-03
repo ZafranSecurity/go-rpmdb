@@ -31,20 +31,20 @@ func ParseHashPage(data []byte, swapped bool) (*HashPage, error) {
 	return &hashPage, nil
 }
 
-func HashPageValueContent(db *os.File, pageData []byte, hashPageIndex uint16, pageSize uint32, swapped bool) ([]byte, error) {
+func HashPageValueContent(db *os.File, pageData []byte, hashPageIndex uint16, pageSize uint32, swapped bool) (uint32, []byte, error) {
 	// the first byte is the page type, so we can peek at it first before parsing further...
 	valuePageType := pageData[hashPageIndex]
 
 	// only HOFFPAGE page types have data of interest
 	if valuePageType != HashOffIndexPageType {
-		return nil, xerrors.Errorf("only HOFFPAGE types supported (%+v)", valuePageType)
+		return 0, nil, xerrors.Errorf("only HOFFPAGE types supported (%+v)", valuePageType)
 	}
 
 	hashOffPageEntryBuff := pageData[hashPageIndex : hashPageIndex+HashOffPageSize]
 
 	entry, err := ParseHashOffPageEntry(hashOffPageEntryBuff, swapped)
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 
 	var hashValue []byte
@@ -54,17 +54,17 @@ func HashPageValueContent(db *os.File, pageData []byte, hashPageIndex uint16, pa
 
 		_, err := db.Seek(int64(pageStart), io.SeekStart)
 		if err != nil {
-			return nil, xerrors.Errorf("failed to seek to HashPageValueContent (page=%d): %w", currentPageNo, err)
+			return 0, nil, xerrors.Errorf("failed to seek to HashPageValueContent (page=%d): %w", currentPageNo, err)
 		}
 
 		currentPageBuff, err := slice(db, int(pageSize))
 		if err != nil {
-			return nil, xerrors.Errorf("failed to read page=%d: %w", currentPageNo, err)
+			return 0, nil, xerrors.Errorf("failed to read page=%d: %w", currentPageNo, err)
 		}
 
 		currentPage, err := ParseHashPage(currentPageBuff, swapped)
 		if err != nil {
-			return nil, xerrors.Errorf("failed to parse page=%d: %w", currentPageNo, err)
+			return 0, nil, xerrors.Errorf("failed to parse page=%d: %w", currentPageNo, err)
 		}
 		if currentPage.PageType != OverflowPageType {
 			continue
@@ -83,7 +83,7 @@ func HashPageValueContent(db *os.File, pageData []byte, hashPageIndex uint16, pa
 		currentPageNo = currentPage.NextPageNo
 	}
 
-	return hashValue, nil
+	return entry.PageNo, hashValue, nil
 }
 
 func HashPageValueIndexes(data []byte, entries uint16, swapped bool) ([]uint16, error) {

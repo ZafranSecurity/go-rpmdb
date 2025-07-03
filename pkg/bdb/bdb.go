@@ -117,7 +117,7 @@ func (db *BerkeleyDB) Read() <-chan dbi.Entry {
 				}
 
 				// Traverse the page to concatenate the data that may span multiple pages.
-				valueContent, err := HashPageValueContent(
+				pgNo, valueContent, err := HashPageValueContent(
 					db.file,
 					pageData,
 					hashPageIndex,
@@ -126,8 +126,9 @@ func (db *BerkeleyDB) Read() <-chan dbi.Entry {
 				)
 
 				entries <- dbi.Entry{
-					Value: valueContent,
-					Err:   err,
+					Value:                valueContent,
+					Err:                  err,
+					BdbFirstOverflowPgNo: pgNo,
 				}
 
 				if err != nil {

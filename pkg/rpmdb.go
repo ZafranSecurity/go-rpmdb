@@ -76,6 +76,9 @@ func (d *RpmDB) ListPackages() ([]*PackageInfo, error) {
 		if err != nil {
 			return nil, xerrors.Errorf("invalid package info: %w", err)
 		}
+
+		pkg.BdbFirstOverflowPgNo = entry.BdbFirstOverflowPgNo
+
 		pkgList = append(pkgList, pkg)
 	}
 
