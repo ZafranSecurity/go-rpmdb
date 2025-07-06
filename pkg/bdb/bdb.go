@@ -22,6 +22,7 @@ var validPageSizes = map[uint32]struct{}{
 type BerkeleyDB struct {
 	file         *os.File
 	HashMetadata *HashMetadataPage
+	pgSize       uint32
 }
 
 func Open(path string) (*BerkeleyDB, error) {
@@ -54,7 +55,12 @@ func Open(path string) (*BerkeleyDB, error) {
 	return &BerkeleyDB{
 		file:         file,
 		HashMetadata: hashMetadata,
+		pgSize:       hashMetadata.PageSize,
 	}, nil
+}
+
+func (db *BerkeleyDB) GetPgSize() uint32 {
+	return db.pgSize
 }
 
 func (db *BerkeleyDB) Close() error {

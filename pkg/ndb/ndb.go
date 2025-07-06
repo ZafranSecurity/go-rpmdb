@@ -131,6 +131,10 @@ func Open(path string) (*RpmNDB, error) {
 	}, nil
 }
 
+func (db *RpmNDB) GetPgSize() uint32 {
+	return 0
+}
+
 func (db *RpmNDB) Close() error {
 	_ = syscallFlock(int(db.file.Fd()), syscallLOCK_UN)
 	return db.file.Close()

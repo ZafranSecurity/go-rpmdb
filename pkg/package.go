@@ -44,6 +44,7 @@ type PackageInfo struct {
 	Requires []string
 
 	BdbFirstOverflowPgNo uint32
+	RawHeader            []byte
 }
 
 type FileInfo struct {
@@ -295,6 +296,7 @@ type pgp4Sig struct {
 var pubKeyLookup = map[uint8]string{
 	0x01: "RSA",
 }
+
 var hashLookup = map[uint8]string{
 	0x02: "SHA1",
 	0x08: "SHA256",

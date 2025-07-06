@@ -9,7 +9,7 @@ import (
 )
 
 type RpmDB struct {
-	db dbi.RpmDBInterface
+	Db dbi.RpmDBInterface
 }
 
 func Open(path string) (*RpmDB, error) {
@@ -19,7 +19,7 @@ func Open(path string) (*RpmDB, error) {
 		return nil, err
 	}
 	if sqldb != nil {
-		return &RpmDB{db: sqldb}, nil
+		return &RpmDB{Db: sqldb}, nil
 	}
 
 	// NDB Open() returns nil, nil in case of DB format other than NDB
@@ -28,7 +28,7 @@ func Open(path string) (*RpmDB, error) {
 		return nil, err
 	}
 	if ndbh != nil {
-		return &RpmDB{db: ndbh}, nil
+		return &RpmDB{Db: ndbh}, nil
 	}
 
 	odb, err := bdb.Open(path)
@@ -37,13 +37,12 @@ func Open(path string) (*RpmDB, error) {
 	}
 
 	return &RpmDB{
-		db: odb,
+		Db: odb,
 	}, nil
-
 }
 
 func (d *RpmDB) Close() error {
-	return d.db.Close()
+	return d.Db.Close()
 }
 
 func (d *RpmDB) Package(name string) (*PackageInfo, error) {
@@ -63,7 +62,7 @@ func (d *RpmDB) Package(name string) (*PackageInfo, error) {
 func (d *RpmDB) ListPackages() ([]*PackageInfo, error) {
 	var pkgList []*PackageInfo
 
-	for entry := range d.db.Read() {
+	for entry := range d.Db.Read() {
 		if entry.Err != nil {
 			return nil, entry.Err
 		}
@@ -78,6 +77,7 @@ func (d *RpmDB) ListPackages() ([]*PackageInfo, error) {
 		}
 
 		pkg.BdbFirstOverflowPgNo = entry.BdbFirstOverflowPgNo
+		pkg.RawHeader = entry.Value
 
 		pkgList = append(pkgList, pkg)
 	}

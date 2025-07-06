@@ -46,6 +46,10 @@ func Open(path string) (*SQLite3, error) {
 	return &SQLite3{db}, nil
 }
 
+func (db *SQLite3) GetPgSize() uint32 {
+	return 0
+}
+
 func (db *SQLite3) Read() <-chan dbi.Entry {
 	entries := make(chan dbi.Entry)
 
