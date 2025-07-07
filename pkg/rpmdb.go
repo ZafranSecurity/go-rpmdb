@@ -78,6 +78,7 @@ func (d *RpmDB) ListPackages() ([]*PackageInfo, error) {
 
 		pkg.BdbFirstOverflowPgNo = entry.BdbFirstOverflowPgNo
 		pkg.RawHeader = entry.Value
+		pkg.IndexEntries = indexEntries
 
 		pkgList = append(pkgList, pkg)
 	}
