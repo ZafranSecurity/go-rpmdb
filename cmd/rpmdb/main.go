@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	multierror "github.com/hashicorp/go-multierror"
 	rpmdb "github.com/ZafranSecurity/go-rpmdb/pkg"
+	multierror "github.com/hashicorp/go-multierror"
 
 	_ "github.com/glebarez/go-sqlite"
 )
@@ -38,6 +38,7 @@ func run() error {
 		pkg.FileFlags = nil
 		pkg.UserNames = nil
 		pkg.GroupNames = nil
+		pkg.RawHeader = nil
 
 		fmt.Printf("\t%+v\n", *pkg)
 	}
@@ -60,7 +61,7 @@ func detectDB() (*rpmdb.RpmDB, error) {
 	}
 	result = multierror.Append(result, err)
 
-	db, err = rpmdb.Open("./Packages")
+	db, err = rpmdb.Open("/var/lib/rpm/Packages")
 	if err == nil {
 		return db, nil
 	}

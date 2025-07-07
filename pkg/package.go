@@ -45,6 +45,7 @@ type PackageInfo struct {
 
 	BdbFirstOverflowPgNo uint32
 	RawHeader            []byte
+	IndexEntries         []indexEntry
 }
 
 type FileInfo struct {

@@ -5,6 +5,7 @@ import (
 	dbi "github.com/ZafranSecurity/go-rpmdb/pkg/db"
 	"github.com/ZafranSecurity/go-rpmdb/pkg/ndb"
 	"github.com/ZafranSecurity/go-rpmdb/pkg/sqlite3"
+	"github.com/samber/lo"
 	"golang.org/x/xerrors"
 )
 
@@ -78,6 +79,10 @@ func (d *RpmDB) ListPackages() ([]*PackageInfo, error) {
 
 		pkg.BdbFirstOverflowPgNo = entry.BdbFirstOverflowPgNo
 		pkg.RawHeader = entry.Value
+		pkg.IndexEntries = lo.Map(indexEntries, func(x indexEntry, _ int) indexEntry {
+			x.Data = nil
+			return x
+		})
 
 		pkgList = append(pkgList, pkg)
 	}
