@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	dbi "github.com/knqyf263/go-rpmdb/pkg/db"
+	dbi "github.com/ZafranSecurity/go-rpmdb/pkg/db"
 	"golang.org/x/xerrors"
 )
 
@@ -22,6 +22,7 @@ var validPageSizes = map[uint32]struct{}{
 type BerkeleyDB struct {
 	file         *os.File
 	HashMetadata *HashMetadataPage
+	pgSize       uint32
 }
 
 func Open(path string) (*BerkeleyDB, error) {
@@ -54,7 +55,12 @@ func Open(path string) (*BerkeleyDB, error) {
 	return &BerkeleyDB{
 		file:         file,
 		HashMetadata: hashMetadata,
+		pgSize:       hashMetadata.PageSize,
 	}, nil
+}
+
+func (db *BerkeleyDB) GetPgSize() uint32 {
+	return db.pgSize
 }
 
 func (db *BerkeleyDB) Close() error {
@@ -117,7 +123,7 @@ func (db *BerkeleyDB) Read() <-chan dbi.Entry {
 				}
 
 				// Traverse the page to concatenate the data that may span multiple pages.
-				valueContent, err := HashPageValueContent(
+				pgNo, valueContent, err := HashPageValueContent(
 					db.file,
 					pageData,
 					hashPageIndex,
@@ -126,8 +132,9 @@ func (db *BerkeleyDB) Read() <-chan dbi.Entry {
 				)
 
 				entries <- dbi.Entry{
-					Value: valueContent,
-					Err:   err,
+					Value:                valueContent,
+					Err:                  err,
+					BdbFirstOverflowPgNo: pgNo,
 				}
 
 				if err != nil {

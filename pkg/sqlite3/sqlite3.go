@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	dbi "github.com/knqyf263/go-rpmdb/pkg/db"
+	dbi "github.com/ZafranSecurity/go-rpmdb/pkg/db"
 	"golang.org/x/xerrors"
 )
 
@@ -44,6 +44,10 @@ func Open(path string) (*SQLite3, error) {
 	}
 
 	return &SQLite3{db}, nil
+}
+
+func (db *SQLite3) GetPgSize() uint32 {
+	return 0
 }
 
 func (db *SQLite3) Read() <-chan dbi.Entry {

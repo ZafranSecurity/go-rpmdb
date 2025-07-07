@@ -28,7 +28,7 @@ import (
 	"os"
 	"unsafe"
 
-	dbi "github.com/knqyf263/go-rpmdb/pkg/db"
+	dbi "github.com/ZafranSecurity/go-rpmdb/pkg/db"
 	"golang.org/x/xerrors"
 )
 
@@ -129,6 +129,10 @@ func Open(path string) (*RpmNDB, error) {
 		file:  file,
 		slots: slots,
 	}, nil
+}
+
+func (db *RpmNDB) GetPgSize() uint32 {
+	return 0
 }
 
 func (db *RpmNDB) Close() error {
