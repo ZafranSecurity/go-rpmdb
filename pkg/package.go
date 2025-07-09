@@ -45,7 +45,7 @@ type PackageInfo struct {
 
 	BdbFirstOverflowPgNo uint32
 	RawHeader            []byte
-	IndexEntries         []indexEntry
+	IndexEntries         []IndexEntry
 }
 
 type FileInfo struct {
@@ -59,7 +59,7 @@ type FileInfo struct {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/tagexts.c#L752
-func getNEVRA(indexEntries []indexEntry) (*PackageInfo, error) {
+func getNEVRA(indexEntries []IndexEntry) (*PackageInfo, error) {
 	pkgInfo := &PackageInfo{}
 	for _, ie := range indexEntries {
 		switch ie.Info.Tag {
@@ -303,7 +303,7 @@ var hashLookup = map[uint8]string{
 	0x08: "SHA256",
 }
 
-func parsePGP(ie indexEntry) (string, error) {
+func parsePGP(ie IndexEntry) (string, error) {
 	var tag, signatureType, version uint8
 
 	r := bytes.NewReader(ie.Data)

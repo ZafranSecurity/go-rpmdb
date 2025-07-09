@@ -11,89 +11,87 @@ import (
 	_ "github.com/glebarez/go-sqlite"
 )
 
-var (
-	packageTests = []struct {
-		name    string
-		file    string // Test input file
-		pkgList []*PackageInfo
-	}{
-		{
-			name:    "CentOS5 plain",
-			file:    "testdata/centos5-plain/Packages",
-			pkgList: CentOS5Plain(),
-		},
-		{
-			name:    "CentOS6 Plain",
-			file:    "testdata/centos6-plain/Packages",
-			pkgList: CentOS6Plain(),
-		},
-		{
-			name:    "CentOS6 with Development tools",
-			file:    "testdata/centos6-devtools/Packages",
-			pkgList: CentOS6DevTools(),
-		},
-		{
-			name:    "CentOS6 with many packages",
-			file:    "testdata/centos6-many/Packages",
-			pkgList: CentOS6Many(),
-		},
-		{
-			name:    "CentOS7 Plain",
-			file:    "testdata/centos7-plain/Packages",
-			pkgList: CentOS7Plain(),
-		},
-		{
-			name:    "CentOS7 with Development tools",
-			file:    "testdata/centos7-devtools/Packages",
-			pkgList: CentOS7DevTools(),
-		},
-		{
-			name:    "CentOS7 with many packages",
-			file:    "testdata/centos7-many/Packages",
-			pkgList: CentOS7Many(),
-		},
-		{
-			name:    "CentOS7 with Python 3.5",
-			file:    "testdata/centos7-python35/Packages",
-			pkgList: CentOS7Python35(),
-		},
-		{
-			name:    "CentOS7 with httpd 2.4",
-			file:    "testdata/centos7-httpd24/Packages",
-			pkgList: CentOS7Httpd24(),
-		},
-		{
-			name:    "CentOS8 with modules",
-			file:    "testdata/centos8-modularitylabel/Packages",
-			pkgList: CentOS8Modularitylabel(),
-		},
-		{
-			name:    "RHEL UBI8 from s390x",
-			file:    "testdata/ubi8-s390x/Packages",
-			pkgList: UBI8s390x(),
-		},
-		{
-			name:    "SLE15 with NDB style rpm database",
-			file:    "testdata/sle15-bci/Packages.db",
-			pkgList: SLE15WithNDB(),
-		},
-		{
-			name:    "Fedora35 with SQLite3 style rpm database",
-			file:    "testdata/fedora35/rpmdb.sqlite",
-			pkgList: Fedora35WithSQLite3(),
-		},
-		{
-			name:    "Fedora35 plus MongoDB with SQLite3 style rpm database",
-			file:    "testdata/fedora35-plus-mongo/rpmdb.sqlite",
-			pkgList: Fedora35PlusMongoDBWithSQLite3(),
-		},
-		{
-			name:    "Rocky9 with SQLite3 style rpm database (newer signature format)",
-			file:    "testdata/rockylinux-9/rpmdb.sqlite",
-			pkgList: Rockylinux9WithSQLite3(),
-		},
-	}
-)
+var packageTests = []struct {
+	name    string
+	file    string // Test input file
+	pkgList []*PackageInfo
+}{
+	{
+		name:    "CentOS5 plain",
+		file:    "testdata/centos5-plain/Packages",
+		pkgList: CentOS5Plain(),
+	},
+	{
+		name:    "CentOS6 Plain",
+		file:    "testdata/centos6-plain/Packages",
+		pkgList: CentOS6Plain(),
+	},
+	{
+		name:    "CentOS6 with Development tools",
+		file:    "testdata/centos6-devtools/Packages",
+		pkgList: CentOS6DevTools(),
+	},
+	{
+		name:    "CentOS6 with many packages",
+		file:    "testdata/centos6-many/Packages",
+		pkgList: CentOS6Many(),
+	},
+	{
+		name:    "CentOS7 Plain",
+		file:    "testdata/centos7-plain/Packages",
+		pkgList: CentOS7Plain(),
+	},
+	{
+		name:    "CentOS7 with Development tools",
+		file:    "testdata/centos7-devtools/Packages",
+		pkgList: CentOS7DevTools(),
+	},
+	{
+		name:    "CentOS7 with many packages",
+		file:    "testdata/centos7-many/Packages",
+		pkgList: CentOS7Many(),
+	},
+	{
+		name:    "CentOS7 with Python 3.5",
+		file:    "testdata/centos7-python35/Packages",
+		pkgList: CentOS7Python35(),
+	},
+	{
+		name:    "CentOS7 with httpd 2.4",
+		file:    "testdata/centos7-httpd24/Packages",
+		pkgList: CentOS7Httpd24(),
+	},
+	{
+		name:    "CentOS8 with modules",
+		file:    "testdata/centos8-modularitylabel/Packages",
+		pkgList: CentOS8Modularitylabel(),
+	},
+	{
+		name:    "RHEL UBI8 from s390x",
+		file:    "testdata/ubi8-s390x/Packages",
+		pkgList: UBI8s390x(),
+	},
+	{
+		name:    "SLE15 with NDB style rpm database",
+		file:    "testdata/sle15-bci/Packages.db",
+		pkgList: SLE15WithNDB(),
+	},
+	{
+		name:    "Fedora35 with SQLite3 style rpm database",
+		file:    "testdata/fedora35/rpmdb.sqlite",
+		pkgList: Fedora35WithSQLite3(),
+	},
+	{
+		name:    "Fedora35 plus MongoDB with SQLite3 style rpm database",
+		file:    "testdata/fedora35-plus-mongo/rpmdb.sqlite",
+		pkgList: Fedora35PlusMongoDBWithSQLite3(),
+	},
+	{
+		name:    "Rocky9 with SQLite3 style rpm database (newer signature format)",
+		file:    "testdata/rockylinux-9/rpmdb.sqlite",
+		pkgList: Rockylinux9WithSQLite3(),
+	},
+}
 
 func TestPackageList(t *testing.T) {
 	for _, tt := range packageTests {
@@ -151,13 +149,13 @@ func BenchmarkRpmDB_Package(b *testing.B) {
 func Test_parseRSA(t *testing.T) {
 	tests := []struct {
 		name    string
-		ie      indexEntry
+		ie      IndexEntry
 		want    string
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
 			name: "older RSA header",
-			ie: indexEntry{
+			ie: IndexEntry{
 				Data: func() []byte {
 					h := "89021503050058d3e39b0946fca2c105b9de0102b12a1000a2b3d347b51142e83b2de5e03ba9096f6330b72c140e46200d662b01c78534d14fab2ad4f07325119386830dd590219f27a22e420680283c500c40e6fba95404884b0a0abca8f198030ddc03653b7db2883b8230687e9e73d43eb5a24dbabfa48bbb3d1151ed264744e5e8ca169b0c4673a1440a9b99e53e693c9722f6423833cd7795e3044227fb922e21b7c007f03e923fae3f04d1ac2e8581e68c6790115b6dccfc02c8cb41681ed84785df086d6e26008c257d088a524ba2e7a7a5f41ad26b106c67b87fe48118b69662db612c23d2140059286f1ba7764627def6867ad0e11fe3a01fb1422dabe6f5cdf4cd876dc4fadfd2364bc3ba3758db94aaf3b82368cba65cf762287f713eb7ddc773acf93b083c739577a7eaf1f99e7dcbb8db1da050490e9fb67c838448db060a9e619d318c96f03e4363808d84ce29e8c102c290cc2bfab5746f3d9ddc9eb8b428f3ad2678abb2d46e846ddca7fc41322d76a97be6d416b4750f23320ec725e082be4496483b4cd3a3d2c515b3c8a6e27541139d809245140303877b84842ed2dd0454a78b2dfb7d6213784697077a8167942ebda5995a28d8256957e33e301706c35944ae05c7a54a4dd89be654d26cefa5cf0f616bbeaf317138371b09c5bbd5531f716020e553354ce5dbce3d9bb72f21e1857408dfd5a35250ff40f61ae1e25409ae9d21db76b8878341f4762a22be2189"
 					b, err := hex.DecodeString(h)
@@ -171,7 +169,7 @@ func Test_parseRSA(t *testing.T) {
 		},
 		{
 			name: "newer RSA header",
-			ie: indexEntry{
+			ie: IndexEntry{
 				Data: func() []byte {
 					h := "89024a04000108003416210421cb256ae16fc54c6e652949702d426d350d275d050262804369161c72656c656e6740726f636b796c696e75782e6f7267000a0910702d426d350d275dc8910ffd14f0f80297481fea648e7ba5a74bce10c5faccc2bbe588caece04be34d304a6a445538afc97a7033d43c983d27cc8f5ee515b2dd92f3e03354c413e55372a4d19386eb0f2354f9a26ee5fc2e56dfda49555e4a58b49279b70cd2036b04f28125f85942f640f2984e29e079f26bf6f76831d83d95983aa084a3e7b6327be2e23d0d799c4b4d1cfb36147ddfb782bf9df7b331d97f4f46b38f968b6130d87b0ef6bb0d424390fe34e38092babed37440569a93f55f50a2bdb58be0259f35badf7e728bd49824ed47f69fa53b6e26736bde4d8358d959b090e88054c3e179745dc7377e41b54b4e10223f4859e88162c7c5ec64b78d36cf8a914c1c2deb8c4f19a70d406e70756a89195d6aee488a9b40b9dbb76b2c38e528eb88d08ec35774a48ed9ce4e0dfac45cb7613ad5921f54c61d3aae5d7b3ab0e2e6ff867ac8f395b37af78b5c01022a4a4e62f7a99425fccb7439880cd6b393a3050b2e9512693bc36f6fe9de2921dda59710a1508965065244cf9f0f8cfc5bd554777f1a84d2249339234d62f2441249f617ad7df4fb01367a91d3a880e86fdb84bc6d03a127b44a28c6ceadef89e438db9640aa59b8a3f460b07272511f8187a5f3b163c8fd1caa61667401bce2ccdb1c176c46be10ef8033903132cca5889fa3661b2fba590c41fa1c104c08426677bdbf745a52ccd28f581960cf9d7e4ede3b9584aacb2f20ef93"
 					b, err := hex.DecodeString(h)
@@ -189,7 +187,7 @@ func Test_parseRSA(t *testing.T) {
 			// $ rpm -q --qf '%{NAME}-%{VERSION}-%{RELEASE} %{RSAHEADER:pgpsig}\n' postgresql14-server-14.10-1PGDG.rhel9.x86_64
 			//   postgresql14-server-14.10-1PGDG.rhel9 RSA/SHA256, Tue Jan  2 16:45:56 2024, Key ID 40bca2b408b40d20
 			name: "example from rocky9 postgresql server",
-			ie: indexEntry{
+			ie: IndexEntry{
 				Data: func() []byte {
 					h := "8901b304000108001d162104d4bf08ae67a0b4c7a1dbccd240bca2b408b40d20050265943dc4000a091040bca2b408b40d203b270bff71678ffeb190833a19a82112f59eee64cba186ab454d4526e0b3c8797e723f6916daff1b1f18cbf53c0da5d398a3a42065e79e5ca939f721652f38400dd4cac1107a902b1dae880649437ad0242444f3f07115172cae0a207b7cf8340af2f4a94976325f1dc165d5c2a564be322c4e130adb6217e7138b689f08898c407b223aa1ff8f8d592f31eba2256c02fae70ce4022d688a487972646b8bf1b518b5d6549c1e60fd812134422d9fdb41cf799f5eab80e48b4ab7cff84362dc867ed1af1416dd78e92bcc59217de7064b9a015d94a5097788689b9b6fbdeea679cfe4a6947f73dc3a6c810f2cb999d279b01564422d1500fc1bd8bd1eefa2d60660127ffef24067354660f93c0faf81f4edd599dd7e4b77fe4bff6c7a0ea83530c817c38d1f2364175883c6ef7b6dec86ad282bdd5138b8597567db96810c4ed6454a4ab1d98f0425dcd8892a5d46ed9289cb3ae3e1f1e2663d3e8188e873428f6cf7163563ed3860edc4fee81522389508847e692e2d13310eb4b40f7fdd7eb364a0b2dc"
 					b, err := hex.DecodeString(h)
@@ -844,7 +842,8 @@ func TestRpmDB_Package(t *testing.T) {
 					"hostname",
 					"hostname(aarch-64)",
 				},
-				Requires: []string{"/bin/sh",
+				Requires: []string{
+					"/bin/sh",
 					"/bin/sh",
 					"/usr/bin/bash",
 					"ld-linux-aarch64.so.1()(64bit)",
