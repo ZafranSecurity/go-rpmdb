@@ -10,4 +10,5 @@ type RpmDBInterface interface {
 	Read() <-chan Entry
 	Close() error
 	GetPgSize() uint32
+	GetLastPgNo() uint32
 }

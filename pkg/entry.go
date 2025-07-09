@@ -68,7 +68,7 @@ type entryInfo struct {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L88-L94
-type indexEntry struct {
+type IndexEntry struct {
 	Info   entryInfo
 	Length int
 	Rdlen  int
@@ -89,7 +89,7 @@ type hdrblob struct {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L2044
-func headerImport(data []byte) ([]indexEntry, error) {
+func headerImport(data []byte) ([]IndexEntry, error) {
 	blob, err := hdrblobInit(data)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to initialize header blob: %w", err)
@@ -147,8 +147,8 @@ func hdrblobInit(data []byte) (*hdrblob, error) {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L880
-func hdrblobImport(blob hdrblob, data []byte) ([]indexEntry, error) {
-	var indexEntries, dribbleIndexEntries []indexEntry
+func hdrblobImport(blob hdrblob, data []byte) ([]IndexEntry, error) {
+	var indexEntries, dribbleIndexEntries []IndexEntry
 	var err error
 	var rdlen int32
 
@@ -184,13 +184,13 @@ func hdrblobImport(blob hdrblob, data []byte) ([]indexEntry, error) {
 				return nil, xerrors.New("invalid length of dribble entries")
 			}
 
-			uniqTagMap := make(map[int32]indexEntry)
+			uniqTagMap := make(map[int32]IndexEntry)
 
 			for _, indexEntry := range append(indexEntries, dribbleIndexEntries...) {
 				uniqTagMap[indexEntry.Info.Tag] = indexEntry
 			}
 
-			var ies []indexEntry
+			var ies []IndexEntry
 			for _, indexEntry := range uniqTagMap {
 				ies = append(ies, indexEntry)
 			}
@@ -333,11 +333,11 @@ func ei2h(pe entryInfo) entryInfo {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L498
-func regionSwab(data []byte, peList []entryInfo, dl, dataStart, dataEnd int32) ([]indexEntry, int32, error) {
-	indexEntries := make([]indexEntry, len(peList))
+func regionSwab(data []byte, peList []entryInfo, dl, dataStart, dataEnd int32) ([]IndexEntry, int32, error) {
+	indexEntries := make([]IndexEntry, len(peList))
 	for i := 0; i < len(peList); i++ {
 		pe := peList[i]
-		indexEntry := indexEntry{Info: ei2h(pe)}
+		indexEntry := IndexEntry{Info: ei2h(pe)}
 
 		start := dataStart + indexEntry.Info.Offset
 		if start >= dataEnd {

@@ -50,6 +50,10 @@ func (db *SQLite3) GetPgSize() uint32 {
 	return 0
 }
 
+func (db *SQLite3) GetLastPgNo() uint32 {
+	return 0
+}
+
 func (db *SQLite3) Read() <-chan dbi.Entry {
 	entries := make(chan dbi.Entry)
 

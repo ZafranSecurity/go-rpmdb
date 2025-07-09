@@ -23,6 +23,7 @@ type BerkeleyDB struct {
 	file         *os.File
 	HashMetadata *HashMetadataPage
 	pgSize       uint32
+	lastPgNo     uint32
 }
 
 func Open(path string) (*BerkeleyDB, error) {
@@ -56,11 +57,16 @@ func Open(path string) (*BerkeleyDB, error) {
 		file:         file,
 		HashMetadata: hashMetadata,
 		pgSize:       hashMetadata.PageSize,
+		lastPgNo:     hashMetadata.LastPageNo,
 	}, nil
 }
 
 func (db *BerkeleyDB) GetPgSize() uint32 {
 	return db.pgSize
+}
+
+func (db *BerkeleyDB) GetLastPgNo() uint32 {
+	return db.lastPgNo
 }
 
 func (db *BerkeleyDB) Close() error {

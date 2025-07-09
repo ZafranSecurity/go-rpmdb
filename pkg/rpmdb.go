@@ -79,7 +79,7 @@ func (d *RpmDB) ListPackages() ([]*PackageInfo, error) {
 
 		pkg.BdbFirstOverflowPgNo = entry.BdbFirstOverflowPgNo
 		pkg.RawHeader = entry.Value
-		pkg.IndexEntries = lo.Map(indexEntries, func(x indexEntry, _ int) indexEntry {
+		pkg.IndexEntries = lo.Map(indexEntries, func(x IndexEntry, _ int) IndexEntry {
 			x.Data = nil
 			return x
 		})
