@@ -76,8 +76,8 @@ type IndexEntry struct {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header_internal.h#L23
-type hdrblob struct {
-	peList    []EntryInfo
+type Hdrblob struct {
+	PeList    []EntryInfo
 	il        int32
 	dl        int32
 	pvlen     int32
@@ -102,8 +102,8 @@ func headerImport(data []byte) ([]IndexEntry, error) {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L1974
-func HdrblobInit(data []byte) (*hdrblob, error) {
-	var blob hdrblob
+func HdrblobInit(data []byte) (*Hdrblob, error) {
+	var blob Hdrblob
 	var err error
 	reader := bytes.NewReader(data)
 
@@ -121,7 +121,7 @@ func HdrblobInit(data []byte) (*hdrblob, error) {
 		return nil, xerrors.New("region no tags error")
 	}
 
-	blob.peList = make([]EntryInfo, blob.il)
+	blob.PeList = make([]EntryInfo, blob.il)
 	for i := 0; i < int(blob.il); i++ {
 		var pe EntryInfo
 		err = binary.Read(reader, binary.LittleEndian, &pe)
@@ -130,7 +130,7 @@ func HdrblobInit(data []byte) (*hdrblob, error) {
 		} else if err != nil {
 			return nil, xerrors.Errorf("failed to read entry info: %w", err)
 		}
-		blob.peList[i] = pe
+		blob.PeList[i] = pe
 	}
 	if blob.pvlen >= headerMaxbytes {
 		return nil, xerrors.Errorf("blob size(%d) BAD, 8 + 16 * il(%d) + dl(%d)", blob.pvlen, blob.il, blob.dl)
@@ -147,15 +147,15 @@ func HdrblobInit(data []byte) (*hdrblob, error) {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L880
-func hdrblobImport(blob hdrblob, data []byte) ([]IndexEntry, error) {
+func hdrblobImport(blob Hdrblob, data []byte) ([]IndexEntry, error) {
 	var indexEntries, dribbleIndexEntries []IndexEntry
 	var err error
 	var rdlen int32
 
-	entry := ei2h(blob.peList[0])
+	entry := ei2h(blob.PeList[0])
 	if entry.Tag >= RPMTAG_HEADERI18NTABLE {
 		/* An original v3 header, create a legacy region entry for it */
-		indexEntries, rdlen, err = regionSwab(data, blob.peList, 0, blob.dataStart, blob.dataEnd)
+		indexEntries, rdlen, err = regionSwab(data, blob.PeList, 0, blob.dataStart, blob.dataEnd)
 		if err != nil {
 			return nil, xerrors.Errorf("failed to parse legacy index entries: %w", err)
 		}
@@ -167,7 +167,7 @@ func hdrblobImport(blob hdrblob, data []byte) ([]IndexEntry, error) {
 		}
 
 		// ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L917
-		indexEntries, rdlen, err = regionSwab(data, blob.peList[1:ril], 0, blob.dataStart, blob.dataEnd)
+		indexEntries, rdlen, err = regionSwab(data, blob.PeList[1:ril], 0, blob.dataStart, blob.dataEnd)
 		if err != nil {
 			return nil, xerrors.Errorf("failed to parse region entries: %w", err)
 		}
@@ -175,8 +175,8 @@ func hdrblobImport(blob hdrblob, data []byte) ([]IndexEntry, error) {
 			return nil, xerrors.New("invalid region length")
 		}
 
-		if blob.ril < int32(len(blob.peList)-1) {
-			dribbleIndexEntries, rdlen, err = regionSwab(data, blob.peList[ril:], rdlen, blob.dataStart, blob.dataEnd)
+		if blob.ril < int32(len(blob.PeList)-1) {
+			dribbleIndexEntries, rdlen, err = regionSwab(data, blob.PeList[ril:], rdlen, blob.dataStart, blob.dataEnd)
 			if err != nil {
 				return nil, xerrors.Errorf("failed to parse dribble entries: %w", err)
 			}
@@ -207,7 +207,7 @@ func hdrblobImport(blob hdrblob, data []byte) ([]IndexEntry, error) {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L298-L303
-func hdrblobVerifyInfo(blob *hdrblob, data []byte) error {
+func hdrblobVerifyInfo(blob *Hdrblob, data []byte) error {
 	var end int32
 
 	peOffset := 0
@@ -215,7 +215,7 @@ func hdrblobVerifyInfo(blob *hdrblob, data []byte) error {
 		peOffset = 1
 	}
 
-	for _, pe := range blob.peList[peOffset:] {
+	for _, pe := range blob.PeList[peOffset:] {
 		info := ei2h(pe)
 
 		if end > info.Offset {
@@ -260,11 +260,11 @@ func hdrchkAlign(t uint32, offset int32) bool {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L1791
-func hdrblobVerifyRegion(blob *hdrblob, data []byte) error {
+func hdrblobVerifyRegion(blob *Hdrblob, data []byte) error {
 	var einfo EntryInfo
 	var regionTag int32
 
-	einfo = ei2h(blob.peList[0])
+	einfo = ei2h(blob.PeList[0])
 
 	if einfo.Tag == RPMTAG_HEADERIMAGE ||
 		einfo.Tag == RPMTAG_HEADERSIGNATURES ||
@@ -307,7 +307,7 @@ func hdrblobVerifyRegion(blob *hdrblob, data []byte) error {
 
 	einfo = ei2h(trailer)
 	einfo.Offset = -einfo.Offset
-	blob.ril = einfo.Offset / int32(unsafe.Sizeof(blob.peList[0]))
+	blob.ril = einfo.Offset / int32(unsafe.Sizeof(blob.PeList[0]))
 	if (einfo.Offset%REGION_TAG_COUNT) != 0 || hdrchkRange(blob.il, blob.ril) || hdrchkRange(blob.dl, blob.rdl) {
 		return xerrors.Errorf("invalid region size, region %d", regionTag)
 	}
