@@ -11,7 +11,7 @@ import (
 
 const (
 	// ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L121-L122
-	REGION_TAG_COUNT = int32(unsafe.Sizeof(entryInfo{}))
+	REGION_TAG_COUNT = int32(unsafe.Sizeof(EntryInfo{}))
 	REGION_TAG_TYPE  = RPM_BIN_TYPE
 
 	// ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L113
@@ -60,7 +60,7 @@ var (
 )
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header_internal.h#L14-L20
-type entryInfo struct {
+type EntryInfo struct {
 	Tag    int32  /*!< Tag identifier. */
 	Type   uint32 /*!< Tag data type. */
 	Offset int32  /*!< Offset into data segment (ondisk only). */
@@ -69,7 +69,7 @@ type entryInfo struct {
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L88-L94
 type IndexEntry struct {
-	Info   entryInfo
+	Info   EntryInfo
 	Length int
 	Rdlen  int
 	Data   []byte
@@ -77,7 +77,7 @@ type IndexEntry struct {
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header_internal.h#L23
 type hdrblob struct {
-	peList    []entryInfo
+	peList    []EntryInfo
 	il        int32
 	dl        int32
 	pvlen     int32
@@ -90,7 +90,7 @@ type hdrblob struct {
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L2044
 func headerImport(data []byte) ([]IndexEntry, error) {
-	blob, err := hdrblobInit(data)
+	blob, err := HdrblobInit(data)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to initialize header blob: %w", err)
 	}
@@ -102,7 +102,7 @@ func headerImport(data []byte) ([]IndexEntry, error) {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L1974
-func hdrblobInit(data []byte) (*hdrblob, error) {
+func HdrblobInit(data []byte) (*hdrblob, error) {
 	var blob hdrblob
 	var err error
 	reader := bytes.NewReader(data)
@@ -113,17 +113,17 @@ func hdrblobInit(data []byte) (*hdrblob, error) {
 	if err = binary.Read(reader, binary.BigEndian, &blob.dl); err != nil {
 		return nil, xerrors.Errorf("invalid data length: %w", err)
 	}
-	blob.dataStart = int32(unsafe.Sizeof(blob.il)) + int32(unsafe.Sizeof(blob.dl)) + blob.il*int32(unsafe.Sizeof(entryInfo{}))
-	blob.pvlen = int32(unsafe.Sizeof(blob.il)) + int32(unsafe.Sizeof(blob.dl)) + blob.il*int32(unsafe.Sizeof(entryInfo{})) + blob.dl
+	blob.dataStart = int32(unsafe.Sizeof(blob.il)) + int32(unsafe.Sizeof(blob.dl)) + blob.il*int32(unsafe.Sizeof(EntryInfo{}))
+	blob.pvlen = int32(unsafe.Sizeof(blob.il)) + int32(unsafe.Sizeof(blob.dl)) + blob.il*int32(unsafe.Sizeof(EntryInfo{})) + blob.dl
 	blob.dataEnd = blob.dataStart + blob.dl
 
 	if blob.il < 1 {
 		return nil, xerrors.New("region no tags error")
 	}
 
-	blob.peList = make([]entryInfo, blob.il)
+	blob.peList = make([]EntryInfo, blob.il)
 	for i := 0; i < int(blob.il); i++ {
-		var pe entryInfo
+		var pe EntryInfo
 		err = binary.Read(reader, binary.LittleEndian, &pe)
 		if err == io.EOF {
 			break
@@ -261,7 +261,7 @@ func hdrchkAlign(t uint32, offset int32) bool {
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L1791
 func hdrblobVerifyRegion(blob *hdrblob, data []byte) error {
-	var einfo entryInfo
+	var einfo EntryInfo
 	var regionTag int32
 
 	einfo = ei2h(blob.peList[0])
@@ -286,7 +286,7 @@ func hdrblobVerifyRegion(blob *hdrblob, data []byte) error {
 	}
 
 	// ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L1842
-	var trailer entryInfo
+	var trailer EntryInfo
 	regionEnd := blob.dataStart + einfo.Offset
 	if regionEnd > int32(len(data)) || regionEnd+REGION_TAG_COUNT > int32(len(data)) {
 		return xerrors.New("invalid region offset")
@@ -323,8 +323,8 @@ func hdrchkRange(dl, offset int32) bool {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header_internal.h#L42
-func ei2h(pe entryInfo) entryInfo {
-	return entryInfo{
+func ei2h(pe EntryInfo) EntryInfo {
+	return EntryInfo{
 		Type:   HtonlU(pe.Type),
 		Count:  HtonlU(pe.Count),
 		Offset: Htonl(pe.Offset),
@@ -333,7 +333,7 @@ func ei2h(pe entryInfo) entryInfo {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header.c#L498
-func regionSwab(data []byte, peList []entryInfo, dl, dataStart, dataEnd int32) ([]IndexEntry, int32, error) {
+func regionSwab(data []byte, peList []EntryInfo, dl, dataStart, dataEnd int32) ([]IndexEntry, int32, error) {
 	indexEntries := make([]IndexEntry, len(peList))
 	for i := 0; i < len(peList); i++ {
 		pe := peList[i]
