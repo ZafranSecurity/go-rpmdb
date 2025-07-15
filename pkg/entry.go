@@ -152,7 +152,7 @@ func hdrblobImport(blob Hdrblob, data []byte) ([]IndexEntry, error) {
 	var err error
 	var rdlen int32
 
-	entry := ei2h(blob.PeList[0])
+	entry := Ei2h(blob.PeList[0])
 	if entry.Tag >= RPMTAG_HEADERI18NTABLE {
 		/* An original v3 header, create a legacy region entry for it */
 		indexEntries, rdlen, err = regionSwab(data, blob.PeList, 0, blob.dataStart, blob.dataEnd)
@@ -216,7 +216,7 @@ func hdrblobVerifyInfo(blob *Hdrblob, data []byte) error {
 	}
 
 	for _, pe := range blob.PeList[peOffset:] {
-		info := ei2h(pe)
+		info := Ei2h(pe)
 
 		if end > info.Offset {
 			return xerrors.Errorf("invalid offset info: %+v", info)
@@ -264,7 +264,7 @@ func hdrblobVerifyRegion(blob *Hdrblob, data []byte) error {
 	var einfo EntryInfo
 	var regionTag int32
 
-	einfo = ei2h(blob.PeList[0])
+	einfo = Ei2h(blob.PeList[0])
 
 	if einfo.Tag == RPMTAG_HEADERIMAGE ||
 		einfo.Tag == RPMTAG_HEADERSIGNATURES ||
@@ -305,7 +305,7 @@ func hdrblobVerifyRegion(blob *Hdrblob, data []byte) error {
 		return xerrors.New("invalid region trailer")
 	}
 
-	einfo = ei2h(trailer)
+	einfo = Ei2h(trailer)
 	einfo.Offset = -einfo.Offset
 	blob.ril = einfo.Offset / int32(unsafe.Sizeof(blob.PeList[0]))
 	if (einfo.Offset%REGION_TAG_COUNT) != 0 || hdrchkRange(blob.il, blob.ril) || hdrchkRange(blob.dl, blob.rdl) {
@@ -323,7 +323,7 @@ func hdrchkRange(dl, offset int32) bool {
 }
 
 // ref. https://github.com/rpm-software-management/rpm/blob/rpm-4.14.3-release/lib/header_internal.h#L42
-func ei2h(pe EntryInfo) EntryInfo {
+func Ei2h(pe EntryInfo) EntryInfo {
 	return EntryInfo{
 		Type:   HtonlU(pe.Type),
 		Count:  HtonlU(pe.Count),
@@ -337,7 +337,7 @@ func regionSwab(data []byte, peList []EntryInfo, dl, dataStart, dataEnd int32) (
 	indexEntries := make([]IndexEntry, len(peList))
 	for i := 0; i < len(peList); i++ {
 		pe := peList[i]
-		indexEntry := IndexEntry{Info: ei2h(pe)}
+		indexEntry := IndexEntry{Info: Ei2h(pe)}
 
 		start := dataStart + indexEntry.Info.Offset
 		if start >= dataEnd {
